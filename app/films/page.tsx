@@ -11,7 +11,9 @@ import { useShowtimes } from "@/hooks/useShowtimes";
 import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 import { ShowtimeGroup, Movie, Showtime } from "@/lib/types";
 
-export default function FilmsPage() {
+import { Suspense } from "react";
+
+function FilmsContent() {
     const {
         selectedDate, setSelectedDate,
         searchQuery, setSearchQuery,
@@ -23,8 +25,6 @@ export default function FilmsPage() {
         date: selectedDate,
         cinemaId: selectedCinema || undefined,
     });
-
-
 
     // Aggregate movies across cinemas
     const movies = useMemo(() => {
@@ -145,5 +145,36 @@ export default function FilmsPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+function FilmsLoading() {
+    return (
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-48 shimmer" />
+                <Skeleton className="h-4 w-96 shimmer" />
+            </div>
+            <Skeleton className="h-12 w-full shimmer" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {Array.from({ length: 15 }).map((_, i) => (
+                    <Card key={i} className="overflow-hidden border-border/50 bg-card/80">
+                        <Skeleton className="aspect-[2/3] w-full shimmer" />
+                        <CardContent className="p-3 space-y-2">
+                            <Skeleton className="h-4 w-3/4 shimmer" />
+                            <Skeleton className="h-3 w-1/2 shimmer" />
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default function FilmsPage() {
+    return (
+        <Suspense fallback={<FilmsLoading />}>
+            <FilmsContent />
+        </Suspense>
     );
 }
