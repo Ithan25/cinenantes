@@ -15,9 +15,7 @@ import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 import { CINEMAS } from "@/lib/cinemas";
 import { Movie, Showtime } from "@/lib/types";
 
-function getToday(): string {
-  return new Date().toISOString().split("T")[0];
-}
+import { getTodayDate } from "@/lib/utils";
 
 interface AggregatedMovie {
   movie: Movie;
@@ -137,7 +135,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="p-2 rounded-lg bg-primary/10 text-primary"><Clock className="h-6 w-6" /></span>
-              {selectedDate === getToday() ? "Séances du jour" : `Séances du ${new Date(selectedDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
+              {selectedDate === getTodayDate() ? "Séances du jour" : `Séances du ${new Date(selectedDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
               {!isLoading && (
                 <span className="text-base font-normal text-muted-foreground ml-2">
                   ({filteredMovies.length} film{filteredMovies.length > 1 ? "s" : ""})

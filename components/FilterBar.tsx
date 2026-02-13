@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Cinema } from "@/lib/types";
 import { CINEMAS } from "@/lib/cinemas";
+import { formatDate } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 
 interface FilterBarProps {
@@ -52,11 +53,15 @@ export default function FilterBar({
         onSearchChange("");
     };
 
+
+
+    // ...
+
     // Generate date options (today + next 6 days)
     const dateOptions = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() + i);
-        const value = d.toISOString().split("T")[0];
+        const value = formatDate(d);
         const label =
             i === 0
                 ? "Aujourd'hui"

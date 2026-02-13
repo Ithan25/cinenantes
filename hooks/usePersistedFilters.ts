@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-function getToday(): string {
-    return new Date().toISOString().split("T")[0];
-}
+import { getTodayDate } from "@/lib/utils";
 
 interface FilterState {
     date: string;
@@ -13,7 +11,7 @@ interface FilterState {
     cinema: string | null;
 }
 
-const DEFAULT_STATE: FilterState = { date: getToday(), search: "", cinema: null };
+const DEFAULT_STATE: FilterState = { date: getTodayDate(), search: "", cinema: null };
 
 export function usePersistedFilters(page: string) {
     const router = useRouter();
@@ -45,7 +43,7 @@ export function usePersistedFilters(page: string) {
     const updateURL = useCallback(
         (newDate: string, newQuery: string, newCinema: string | null) => {
             const params = new URLSearchParams();
-            if (newDate && newDate !== getToday()) params.set("date", newDate);
+            if (newDate && newDate !== getTodayDate()) params.set("date", newDate);
             if (newQuery) params.set("q", newQuery);
             if (newCinema) params.set("cinema", newCinema);
 

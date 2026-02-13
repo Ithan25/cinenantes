@@ -24,16 +24,14 @@ import ShowtimesList from "@/components/ShowtimesList";
 import { useShowtimes } from "@/hooks/useShowtimes";
 import { ShowtimeGroup, Movie } from "@/lib/types";
 
-function getToday(): string {
-    return new Date().toISOString().split("T")[0];
-}
+import { getTodayDate, formatDate } from "@/lib/utils";
 
 // Generate date options (today + 6 days)
 function getDateOptions() {
     return Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() + i);
-        const value = d.toISOString().split("T")[0];
+        const value = formatDate(d);
         const label =
             i === 0
                 ? "Aujourd'hui"
@@ -52,7 +50,7 @@ export default function FilmDetailPage() {
     const params = useParams();
     const movieId = params.id as string;
     const router = useRouter();
-    const [selectedDate, setSelectedDate] = useState(getToday());
+    const [selectedDate, setSelectedDate] = useState(getTodayDate());
 
     // Fetch showtimes for the selected date
     const { groups, isLoading } = useShowtimes({ date: selectedDate });
