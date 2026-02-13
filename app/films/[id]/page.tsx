@@ -79,7 +79,11 @@ export default function FilmDetailPage() {
     // If movie not found after loading today, search other dates
     useEffect(() => {
         if (isLoading || movieData || searchedRef.current) return;
-        if (groups.length > 0 && !movieFromSelectedDate) {
+
+        // If we have loaded the data for the selected date, but the movie isn't there
+        // We should search other dates. We remove the groups.length check because 
+        // groups could be empty if no movies are playing at all today.
+        if (!movieFromSelectedDate) {
             // Movie wasn't found on selected date, search other dates
             searchedRef.current = true;
             setSearchingDates(true);
@@ -102,6 +106,7 @@ export default function FilmDetailPage() {
                         );
                         if (found) {
                             setMovieData(found.movie);
+                            setSelectedDate(date); // Switch to the date where we found the movie
                             setSearchingDates(false);
                             return;
                         }
