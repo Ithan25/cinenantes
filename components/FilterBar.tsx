@@ -71,7 +71,7 @@ export default function FilterBar({
     });
 
     return (
-        <div className="space-y-4 bg-card/40 backdrop-blur-md border border-border/50 p-4 rounded-xl shadow-sm">
+        <div className="space-y-3 md:space-y-4 bg-card/40 backdrop-blur-md border border-border/50 p-3 md:p-4 rounded-xl shadow-sm">
             {/* Search + filter toggle */}
             <div className="flex gap-3">
                 <div className="relative flex-1">

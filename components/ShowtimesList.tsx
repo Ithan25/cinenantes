@@ -41,11 +41,9 @@ export default function ShowtimesList({
                         className="text-xs px-2 py-0.5 border-primary/30 text-primary/90 hover:bg-primary/10 transition-colors cursor-default"
                     >
                         {st.time}
-                        {st.version && (
-                            <span className="ml-1 text-[10px] text-muted-foreground">
-                                {st.version}
-                            </span>
-                        )}
+                        <span className="ml-1 text-[10px] text-muted-foreground font-bold uppercase">
+                            {st.version && st.version.includes("VO") ? st.version : "VF"}
+                        </span>
                         {st.is3D && (
                             <span className="ml-1 text-[10px] text-blue-400">3D</span>
                         )}

@@ -50,7 +50,7 @@ export default function Header() {
                         }`}>
                         <Film className={`h-5 w-5 ${isLightScrolled ? "text-white" : "text-primary"}`} />
                     </div>
-                    <span className="text-lg font-bold tracking-tight hidden sm:block">
+                    <span className="text-lg font-bold tracking-tight">
                         <span className={isLightScrolled ? "text-white" : "text-foreground"}>Ciné</span>
                         <span className={isLightScrolled ? "text-white/80" : "text-primary"}>Nantes</span>
                     </span>
@@ -123,8 +123,11 @@ export default function Header() {
             </div>
 
             {/* Mobile Navigation */}
-            {mobileMenuOpen && (
-                <nav className={`md:hidden border-t backdrop-blur-xl px-4 pb-4 pt-2 animate-in slide-in-from-top-2 fade-in duration-200 ${isLightScrolled
+            <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${mobileMenuOpen
+                ? "max-h-[500px] opacity-100 translate-y-0"
+                : "max-h-0 opacity-0 -translate-y-2 invisible"
+                }`}>
+                <nav className={`border-t backdrop-blur-xl px-4 pb-4 pt-2 ${isLightScrolled
                     ? "border-white/20 bg-primary/90"
                     : "border-black/[0.06] dark:border-white/[0.06] bg-background/80"
                     }`}>
@@ -157,7 +160,7 @@ export default function Header() {
                         );
                     })}
                 </nav>
-            )}
+            </div>
         </header>
     );
 }
