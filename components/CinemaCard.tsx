@@ -68,23 +68,25 @@ export default function CinemaCard({
 
     return (
         <Card className="group card-hover border-border/50 bg-card/80 hover:border-primary/30 cursor-pointer overflow-hidden">
-            {/* Cinema image or accent bar */}
-            <div className="relative">
-                {imgSrc && !imgFailed ? (
-                    <img
-                        ref={imgRef}
-                        src={imgSrc}
-                        alt={cinema.name}
-                        className="w-full h-32 object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
-                        onError={handleImageError}
-                    />
-                ) : (
-                    <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent" />
-                )}
-                {imgSrc && !imgFailed && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-                )}
-            </div>
+            {/* Cinema image or accent bar — clickable */}
+            <Link href={`/cinemas/${cinema.id}`}>
+                <div className="relative">
+                    {imgSrc && !imgFailed ? (
+                        <img
+                            ref={imgRef}
+                            src={imgSrc}
+                            alt={cinema.name}
+                            className="w-full h-32 object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+                            onError={handleImageError}
+                        />
+                    ) : (
+                        <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent" />
+                    )}
+                    {imgSrc && !imgFailed && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+                    )}
+                </div>
+            </Link>
 
             <CardContent className="p-5 space-y-3">
                 <div className="flex items-start justify-between gap-2">

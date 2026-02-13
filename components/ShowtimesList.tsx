@@ -72,6 +72,11 @@ export default function ShowtimesList({
                                 className="text-base px-4 py-1.5 border-primary/40 text-primary hover:bg-primary/20 hover:border-primary/80 hover:shadow-[0_0_15px_rgba(251,191,36,0.4)] transition-all cursor-default group"
                             >
                                 <span className="font-bold">{st.time}</span>
+                                {st.version && (
+                                    <span className="ml-2 text-xs text-muted-foreground font-medium">
+                                        {st.version}
+                                    </span>
+                                )}
                                 {st.is3D && (
                                     <span className="ml-2 text-xs text-blue-400 font-extrabold drop-shadow-[0_0_8px_rgba(96,165,250,0.6)]">
                                         3D
