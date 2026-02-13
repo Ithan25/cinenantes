@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +12,7 @@ import {
     Clapperboard,
     Building2,
     ExternalLink,
+    MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,14 +31,33 @@ function getToday(): string {
 export default function FilmDetailPage() {
     const params = useParams();
     const movieId = params.id as string;
+    const [selectedDate, setSelectedDate] = useState(getToday());
 
-    const { groups, isLoading } = useShowtimes({ date: getToday() });
+    const { groups, isLoading } = useShowtimes({ date: selectedDate });
 
     // Find movie in groups
     const movieGroups = groups.filter(
         (g: ShowtimeGroup) => g.movie.id === movieId
     );
     const movie = movieGroups.length > 0 ? movieGroups[0].movie : null;
+
+    // Date options (today + 6 days)
+    const dateOptions = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const value = d.toISOString().split("T")[0];
+        const label =
+            i === 0
+                ? "Aujourd'hui"
+                : i === 1
+                    ? "Demain"
+                    : d.toLocaleDateString("fr-FR", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                    });
+        return { value, label };
+    });
 
     if (isLoading) {
         return (
@@ -143,27 +164,27 @@ export default function FilmDetailPage() {
                     <div className="flex-1 min-w-0 pt-4 md:pt-12 space-y-8">
                         {/* Header Info */}
                         <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-xl loading-tight">
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground drop-shadow-xl loading-tight">
                                 {movie.title}
                             </h1>
 
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm md:text-base text-muted-foreground font-medium">
                                 {movie.duration && (
-                                    <span className="flex items-center gap-2 text-white/90">
+                                    <span className="flex items-center gap-2 text-foreground/90">
                                         <Clock className="h-4 w-4 text-primary" />
                                         {movie.duration}
                                     </span>
                                 )}
                                 {movie.genres && movie.genres.length > 0 && (
                                     <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                                        <span className="text-white/80">{movie.genres.join(" · ")}</span>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                                        <span className="text-foreground/80">{movie.genres.join(" · ")}</span>
                                     </>
                                 )}
                                 {movie.releaseDate && (
                                     <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                                        <span className="text-white/80">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                                        <span className="text-foreground/80">
                                             {new Date(movie.releaseDate).getFullYear()}
                                         </span>
                                     </>
@@ -172,7 +193,7 @@ export default function FilmDetailPage() {
                         </div>
 
                         {/* Details Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 pb-8 border-b border-white/5">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 pb-8 border-b border-black/5 dark:border-white/5">
                             <div className="space-y-4">
                                 <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
                                     Synopsis
@@ -200,9 +221,9 @@ export default function FilmDetailPage() {
                                             <Users className="h-4 w-4 text-primary" />
                                             Casting
                                         </h3>
-                                        <div className="flex flex-wrap gap-2 pl-6 border-l-2 border-white/10">
+                                        <div className="flex flex-wrap gap-2 pl-6 border-l-2 border-black/5 dark:border-white/10">
                                             {movie.cast.map(actor => (
-                                                <span key={actor} className="inline-block bg-white/5 px-3 py-1 rounded-md text-sm border border-white/5 text-foreground/90">
+                                                <span key={actor} className="inline-block bg-black/5 dark:bg-white/5 px-3 py-1 rounded-md text-sm border border-black/5 dark:border-white/5 text-foreground/90">
                                                     {actor}
                                                 </span>
                                             ))}
@@ -212,7 +233,7 @@ export default function FilmDetailPage() {
                             </div>
                         </div>
 
-                        {/* Showtimes Section */}
+                        {/* Showtimes Section with Date Selector */}
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -221,16 +242,34 @@ export default function FilmDetailPage() {
                                     </span>
                                     Séances
                                     <Badge variant="secondary" className="ml-2">
-                                        {movieGroups.length}
+                                        {movieGroups.length} cinéma{movieGroups.length > 1 ? "s" : ""}
                                     </Badge>
                                 </h2>
+                            </div>
+
+                            {/* Date selector */}
+                            <div className="flex gap-1.5 overflow-x-auto pb-1">
+                                {dateOptions.map((d) => (
+                                    <Button
+                                        key={d.value}
+                                        variant={selectedDate === d.value ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setSelectedDate(d.value)}
+                                        className={`whitespace-nowrap text-xs shrink-0 rounded-full px-4 ${selectedDate === d.value
+                                            ? "bg-primary text-primary-foreground font-semibold shadow-[0_0_15px_rgba(251,191,36,0.25)] hover:bg-primary/90"
+                                            : "border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 text-muted-foreground hover:text-foreground hover:border-primary/30"
+                                            }`}
+                                    >
+                                        {d.label}
+                                    </Button>
+                                ))}
                             </div>
 
                             {movieGroups.length === 0 ? (
                                 <Card className="border-border/50 bg-card/30 p-8 text-center backdrop-blur-sm">
                                     <span className="text-4xl block mb-4">🗓️</span>
-                                    <h3 className="text-lg font-semibold">Aucune séance aujourd'hui</h3>
-                                    <p className="text-muted-foreground">Essayez une autre date ou un autre cinéma.</p>
+                                    <h3 className="text-lg font-semibold">Aucune séance ce jour</h3>
+                                    <p className="text-muted-foreground">Essayez une autre date pour trouver des séances.</p>
                                 </Card>
                             ) : (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -256,7 +295,7 @@ export default function FilmDetailPage() {
                                                         </div>
                                                     </Link>
                                                     <a
-                                                        href={group.cinema.allocineUrl}
+                                                        href={group.cinema.websiteUrl || group.cinema.allocineUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={(e) => e.stopPropagation()}
@@ -272,7 +311,7 @@ export default function FilmDetailPage() {
                                                         </Button>
                                                     </a>
                                                 </div>
-                                                <Separator className="bg-white/5" />
+                                                <Separator className="bg-black/5 dark:bg-white/5" />
                                                 <ShowtimesList showtimes={group.showtimes} />
                                             </CardContent>
                                         </Card>
@@ -284,23 +323,5 @@ export default function FilmDetailPage() {
                 </div>
             </div>
         </div>
-    );
-}
-
-function MapPin({ className }: { className?: string }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={className}
-        >
-            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-            <circle cx="12" cy="10" r="3" />
-        </svg>
     );
 }

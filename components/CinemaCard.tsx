@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,35 +27,53 @@ const TYPE_COLORS: Record<Cinema["type"], string> = {
     independant: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
 };
 
+const IMAGE_EXTENSIONS = ["webp", "png", "jpg", "jpeg", "avif"];
+
 export default function CinemaCard({
     cinema,
     showtimeCount,
     movieCount,
 }: CinemaCardProps) {
-    // Try multiple image formats in sequence
-    const IMAGE_EXTENSIONS = ["webp", "png", "jpg", "jpeg", "avif"];
-    const [imgExtIndex, setImgExtIndex] = useState(0);
+    const [imgSrc, setImgSrc] = useState<string | null>(null);
     const [imgFailed, setImgFailed] = useState(false);
+    const extIndexRef = useRef(0);
+    const imgRef = useRef<HTMLImageElement>(null);
 
-    const cinemaImageSrc = !imgFailed
-        ? `/cinemas/${cinema.id}.${IMAGE_EXTENSIONS[imgExtIndex]}`
-        : null;
+    // Client-only image probing to avoid SSR hydration mismatch
+    useEffect(() => {
+        extIndexRef.current = 0;
+        setImgFailed(false);
+        setImgSrc(`/cinemas/${cinema.id}.${IMAGE_EXTENSIONS[0]}`);
+    }, [cinema.id]);
+
+    // Check if image was already broken on mount (hydration edge case)
+    useEffect(() => {
+        if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth === 0 && imgSrc) {
+            handleImageError();
+        }
+    });
 
     const handleImageError = () => {
-        if (imgExtIndex < IMAGE_EXTENSIONS.length - 1) {
-            setImgExtIndex((prev) => prev + 1);
+        const nextIndex = extIndexRef.current + 1;
+        if (nextIndex < IMAGE_EXTENSIONS.length) {
+            extIndexRef.current = nextIndex;
+            setImgSrc(`/cinemas/${cinema.id}.${IMAGE_EXTENSIONS[nextIndex]}`);
         } else {
             setImgFailed(true);
+            setImgSrc(null);
         }
     };
 
+    const externalUrl = cinema.websiteUrl || cinema.allocineUrl;
+
     return (
         <Card className="group card-hover border-border/50 bg-card/80 hover:border-primary/30 cursor-pointer overflow-hidden">
-            {/* Cinema image (tries multiple formats) or accent bar */}
+            {/* Cinema image or accent bar */}
             <div className="relative">
-                {cinemaImageSrc ? (
+                {imgSrc && !imgFailed ? (
                     <img
-                        src={cinemaImageSrc}
+                        ref={imgRef}
+                        src={imgSrc}
                         alt={cinema.name}
                         className="w-full h-32 object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
                         onError={handleImageError}
@@ -63,8 +81,7 @@ export default function CinemaCard({
                 ) : (
                     <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent" />
                 )}
-                {/* Gradient overlay on image */}
-                {cinemaImageSrc && (
+                {imgSrc && !imgFailed && (
                     <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent pointer-events-none" />
                 )}
             </div>
@@ -83,21 +100,23 @@ export default function CinemaCard({
                         </div>
                     </Link>
                     <div className="flex items-center gap-1 shrink-0">
-                        <a
-                            href={cinema.allocineUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            title="Voir sur Allociné"
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        {externalUrl && (
+                            <a
+                                href={externalUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                title="Voir le site du cinéma"
                             >
-                                <ExternalLink className="h-3.5 w-3.5" />
-                            </Button>
-                        </a>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                </Button>
+                            </a>
+                        )}
                         <FavoriteButton
                             id={cinema.id}
                             type="cinema"

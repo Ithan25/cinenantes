@@ -20,6 +20,7 @@ export const CINEMAS: Cinema[] = [
         type: "multiplexe",
         allocineId: "P0196",
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0196.html",
+        websiteUrl: "https://www.pathe.fr/cinemas/cinema-pathe-nantes",
         screens: 12,
         lat: 47.2131,
         lng: -1.5583,
@@ -33,6 +34,7 @@ export const CINEMAS: Cinema[] = [
         type: "art-essai",
         allocineId: "P0052",
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0052.html",
+        websiteUrl: "https://www.katorza.fr/katorza/accueil/katorza",
         screens: 6,
         lat: 47.2144,
         lng: -1.5606,
@@ -46,6 +48,7 @@ export const CINEMAS: Cinema[] = [
         type: "art-essai",
         allocineId: "P0054", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0054.html",
+        websiteUrl: "https://www.lecinematographe.com/",
         screens: 1,
         lat: 47.2179,
         lng: -1.5545,
@@ -59,6 +62,7 @@ export const CINEMAS: Cinema[] = [
         type: "independant",
         allocineId: "P0088",
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0088.html",
+        websiteUrl: "https://leconcorde.fr/",
         screens: 4,
         lat: 47.2065,
         lng: -1.5488,
@@ -72,6 +76,7 @@ export const CINEMAS: Cinema[] = [
         type: "art-essai",
         allocineId: "P0095",
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0095.html",
+        websiteUrl: "https://cinemalebonnegarde.com/FR/9/cinema-bonne-garde-nantes.html",
         screens: 1,
         lat: 47.2023,
         lng: -1.5481,
@@ -85,6 +90,7 @@ export const CINEMAS: Cinema[] = [
         type: "multiplexe",
         allocineId: "P0197", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0197.html",
+        websiteUrl: "https://www.pathe.fr/cinemas/cinema-pathe-atlantis",
         screens: 14,
         lat: 47.2284,
         lng: -1.6285,
@@ -98,6 +104,7 @@ export const CINEMAS: Cinema[] = [
         type: "multiplexe",
         allocineId: "P0198", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0198.html",
+        websiteUrl: "https://www.ugc.fr/cinema.html?id=31",
         screens: 12,
         lat: 47.2289,
         lng: -1.6301,
@@ -111,6 +118,7 @@ export const CINEMAS: Cinema[] = [
         type: "multiplexe",
         allocineId: "P0199", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0199.html",
+        websiteUrl: "https://saint-sebastien.cineville.fr/programmes/saint-sebastien",
         screens: 10,
         lat: 47.1961,
         lng: -1.5078,
@@ -124,6 +132,7 @@ export const CINEMAS: Cinema[] = [
         type: "multiplexe",
         allocineId: "P0200", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0200.html",
+        websiteUrl: "https://www.cinepolesud.fr/",
         screens: 8,
         lat: 47.2006,
         lng: -1.4567,
@@ -137,22 +146,10 @@ export const CINEMAS: Cinema[] = [
         type: "independant",
         allocineId: "P0201", // non vérifié — à corriger si aucune séance
         allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0201.html",
+        websiteUrl: "https://cinemastpaul.fr/FR/9/cinema-saint-paul-reze.html",
         screens: 1,
         lat: 47.1873,
         lng: -1.5573,
-    },
-    {
-        id: "beaulieu",
-        name: "Le Beaulieu",
-        address: "Rue de la Commune de Paris",
-        city: "Bouguenais",
-        postalCode: "44340",
-        type: "independant",
-        allocineId: "P0202", // non vérifié — à corriger si aucune séance
-        allocineUrl: "https://www.allocine.fr/seance/salle_gen_csalle=P0202.html",
-        screens: 1,
-        lat: 47.1681,
-        lng: -1.6081,
     },
 ];
 

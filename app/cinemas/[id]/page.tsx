@@ -134,7 +134,7 @@ export default function CinemaDetailPage() {
                                 </Badge>
                             )}
                             <a
-                                href={cinema.allocineUrl}
+                                href={cinema.websiteUrl || cinema.allocineUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -143,7 +143,7 @@ export default function CinemaDetailPage() {
                                     className="gap-1 cursor-pointer hover:bg-accent/50 text-muted-foreground"
                                 >
                                     <ExternalLink className="h-3 w-3" />
-                                    Allociné
+                                    Site officiel
                                 </Badge>
                             </a>
                         </div>
@@ -160,8 +160,8 @@ export default function CinemaDetailPage() {
                         size="sm"
                         onClick={() => setSelectedDate(d.value)}
                         className={`whitespace-nowrap text-xs shrink-0 ${selectedDate === d.value
-                                ? "bg-primary/20 text-primary border-primary/40 neon-border hover:bg-primary/30"
-                                : "border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30"
+                            ? "bg-primary/20 text-primary border-primary/40 neon-border hover:bg-primary/30"
+                            : "border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30"
                             }`}
                     >
                         {d.label}

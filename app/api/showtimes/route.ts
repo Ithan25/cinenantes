@@ -41,6 +41,29 @@ export async function GET(request: NextRequest) {
             groups = enrichedGroups;
         }
 
+        // Filter out past showtimes if the date is today
+        const today = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Europe/Paris",
+        }); // YYYY-MM-DD
+        if (date === today) {
+            const nowParts = new Date()
+                .toLocaleTimeString("en-GB", {
+                    timeZone: "Europe/Paris",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                }); // "HH:MM"
+
+            groups = groups
+                .map((group) => ({
+                    ...group,
+                    showtimes: group.showtimes.filter(
+                        (st) => st.time >= nowParts
+                    ),
+                }))
+                .filter((group) => group.showtimes.length > 0);
+        }
+
         return NextResponse.json({
             date,
             count: groups.length,

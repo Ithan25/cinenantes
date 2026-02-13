@@ -11,6 +11,7 @@ export interface Cinema {
   type: "multiplexe" | "art-essai" | "independant";
   allocineId: string;
   allocineUrl: string;
+  websiteUrl?: string;
   imageUrl?: string;
   lat?: number;
   lng?: number;
