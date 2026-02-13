@@ -115,8 +115,8 @@ export default function HomePage() {
               <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Films à l&apos;affiche</span>
             </div>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-bold text-foreground">100%</span>
-              <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Nantais</span>
+              <span className="text-2xl font-bold text-foreground">{aggregatedMovies.reduce((sum, m) => sum + m.allShowtimes.length, 0)}</span>
+              <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Séances</span>
             </div>
           </div>
         </div>
