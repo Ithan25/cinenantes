@@ -10,6 +10,7 @@ import {
     Users,
     Clapperboard,
     Building2,
+    ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -239,20 +240,38 @@ export default function FilmDetailPage() {
                                             className="group border-border/50 bg-card/40 hover:bg-card/60 hover:border-primary/20 transition-all duration-300"
                                         >
                                             <CardContent className="p-5 space-y-4">
-                                                <Link
-                                                    href={`/cinemas/${group.cinema.id}`}
-                                                    className="flex items-start justify-between"
-                                                >
-                                                    <div>
-                                                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors flex items-center gap-2">
-                                                            {group.cinema.name}
-                                                        </h3>
-                                                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                                                            <MapPin className="h-3.5 w-3.5" />
-                                                            {group.cinema.city}
-                                                        </p>
-                                                    </div>
-                                                </Link>
+                                                <div className="flex items-start justify-between">
+                                                    <Link
+                                                        href={`/cinemas/${group.cinema.id}`}
+                                                        className="flex-1"
+                                                    >
+                                                        <div>
+                                                            <h3 className="font-bold text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                                                                {group.cinema.name}
+                                                            </h3>
+                                                            <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                                                                <MapPin className="h-3.5 w-3.5" />
+                                                                {group.cinema.city}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                    <a
+                                                        href={group.cinema.allocineUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="shrink-0 ml-2"
+                                                    >
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-xs border-primary/30 text-primary/80 hover:bg-primary/10 hover:text-primary gap-1.5"
+                                                        >
+                                                            <ExternalLink className="h-3.5 w-3.5" />
+                                                            Site
+                                                        </Button>
+                                                    </a>
+                                                </div>
                                                 <Separator className="bg-white/5" />
                                                 <ShowtimesList showtimes={group.showtimes} />
                                             </CardContent>

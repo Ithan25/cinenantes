@@ -16,7 +16,7 @@ interface UseShowtimesResult {
     refetch: () => void;
 }
 
-const CACHE_KEY_PREFIX = "cinenantes-cache-showtimes-v1";
+const CACHE_KEY_PREFIX = "cinenantes-cache-showtimes-v2";
 const CACHE_TTL = 3 * 60 * 60 * 1000; // 3 hours
 
 export function useShowtimes(

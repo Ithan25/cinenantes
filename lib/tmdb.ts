@@ -119,16 +119,19 @@ export async function enrichMovie(movie: Movie): Promise<Movie> {
     const tmdbData = await searchMovie(movie.title);
     if (!tmdbData) return movie;
 
+    // Allociné JSON API provides most data already.
+    // TMDB is used primarily for backdrop images and to fill any gaps.
     return {
         ...movie,
-        posterUrl: tmdbData.posterUrl || movie.posterUrl,
+        posterUrl: movie.posterUrl || tmdbData.posterUrl,
         backdropUrl: tmdbData.backdropUrl || movie.backdropUrl,
-        synopsis: tmdbData.synopsis || movie.synopsis,
-        rating: tmdbData.rating || movie.rating,
-        genres: tmdbData.genres || movie.genres,
-        duration: tmdbData.duration || movie.duration,
-        director: tmdbData.director || movie.director,
-        cast: tmdbData.cast || movie.cast,
+        synopsis: movie.synopsis || tmdbData.synopsis,
+        rating: movie.rating || tmdbData.rating,
+        genres: movie.genres || tmdbData.genres,
+        duration: movie.duration || tmdbData.duration,
+        director: movie.director || tmdbData.director,
+        cast: movie.cast || tmdbData.cast,
         tmdbId: tmdbData.tmdbId || movie.tmdbId,
+        releaseDate: movie.releaseDate || tmdbData.releaseDate,
     };
 }
