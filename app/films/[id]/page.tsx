@@ -226,6 +226,13 @@ export default function FilmDetailPage() {
                                 type="movie"
                                 name={m.title}
                                 size="default"
+                                metadata={{
+                                    posterUrl: m.posterUrl,
+                                    rating: m.rating,
+                                    genres: m.genres,
+                                    duration: m.duration,
+                                    releaseDate: m.releaseDate
+                                }}
                                 className="flex-1 justify-center h-11 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.12] backdrop-blur-sm"
                             />
                             {m.rating && (

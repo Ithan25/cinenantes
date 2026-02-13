@@ -70,4 +70,12 @@ export interface Favorite {
   type: FavoriteType;
   name: string;
   addedAt: string;
+  // Metadata for offline display
+  posterUrl?: string;
+  rating?: number;
+  genres?: string[];
+  duration?: string;
+  releaseDate?: string;
+  address?: string;
+  city?: string;
 }

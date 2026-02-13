@@ -123,6 +123,11 @@ export default function CinemaCard({
                             id={cinema.id}
                             type="cinema"
                             name={cinema.name}
+                            metadata={{
+                                address: cinema.address,
+                                city: cinema.city,
+                                type: cinema.type,
+                            }}
                             className="shrink-0"
                         />
                     </div>

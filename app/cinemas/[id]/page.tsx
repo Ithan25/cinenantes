@@ -109,6 +109,11 @@ export default function CinemaDetailPage() {
                                 name={cinema.name}
                                 size="default"
                                 variant="outline"
+                                metadata={{
+                                    address: cinema.address,
+                                    city: cinema.city,
+                                    type: cinema.type
+                                }}
                                 className="shrink-0"
                             />
                         </div>

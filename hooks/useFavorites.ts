@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Favorite, FavoriteType } from "@/lib/types";
 
 const STORAGE_KEY = "cinenantes-favorites";
+const FAVORITES_UPDATED_EVENT = "favorites-updated";
 
 function getFavoritesFromStorage(): Favorite[] {
     if (typeof window === "undefined") return [];
@@ -18,53 +19,80 @@ function getFavoritesFromStorage(): Favorite[] {
 function saveFavoritesToStorage(favorites: Favorite[]): void {
     if (typeof window === "undefined") return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    // Dispatch event for other hooks in the same window
+    window.dispatchEvent(new Event(FAVORITES_UPDATED_EVENT));
 }
 
 export function useFavorites() {
     const [favorites, setFavorites] = useState<Favorite[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    useEffect(() => {
+    const loadFavorites = useCallback(() => {
         setFavorites(getFavoritesFromStorage());
         setIsLoaded(true);
     }, []);
 
+    // Initial load and sync listener
+    useEffect(() => {
+        loadFavorites();
+
+        const handleStorageChange = () => {
+            loadFavorites();
+        };
+
+        // Listen for updates from other hook instances in the same window
+        window.addEventListener(FAVORITES_UPDATED_EVENT, handleStorageChange);
+        // Listen for updates from other tabs
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => {
+            window.removeEventListener(FAVORITES_UPDATED_EVENT, handleStorageChange);
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, [loadFavorites]);
+
     const addFavorite = useCallback(
-        (id: string, type: FavoriteType, name: string) => {
-            setFavorites((prev) => {
-                const exists = prev.some((f) => f.id === id && f.type === type);
-                if (exists) return prev;
-                const newFavs = [
-                    ...prev,
-                    { id, type, name, addedAt: new Date().toISOString() },
-                ];
-                saveFavoritesToStorage(newFavs);
-                return newFavs;
-            });
+        (id: string, type: FavoriteType, name: string, metadata: any = {}) => {
+            const currentFavorites = getFavoritesFromStorage();
+            const exists = currentFavorites.some((f) => f.id === id && f.type === type);
+            if (exists) return;
+
+            const newFavs = [
+                ...currentFavorites,
+                { id, type, name, addedAt: new Date().toISOString(), ...metadata },
+            ];
+            saveFavoritesToStorage(newFavs);
         },
         []
     );
 
     const removeFavorite = useCallback((id: string, type: FavoriteType) => {
-        setFavorites((prev) => {
-            const newFavs = prev.filter(
-                (f) => !(f.id === id && f.type === type)
-            );
-            saveFavoritesToStorage(newFavs);
-            return newFavs;
-        });
+        const currentFavorites = getFavoritesFromStorage();
+        const newFavs = currentFavorites.filter(
+            (f) => !(f.id === id && f.type === type)
+        );
+        saveFavoritesToStorage(newFavs);
     }, []);
 
     const toggleFavorite = useCallback(
-        (id: string, type: FavoriteType, name: string) => {
-            const exists = favorites.some((f) => f.id === id && f.type === type);
+        (id: string, type: FavoriteType, name: string, metadata: any = {}) => {
+            const currentFavorites = getFavoritesFromStorage();
+            const exists = currentFavorites.some((f) => f.id === id && f.type === type);
+
             if (exists) {
-                removeFavorite(id, type);
+                const newFavs = currentFavorites.filter(
+                    (f) => !(f.id === id && f.type === type)
+                );
+                saveFavoritesToStorage(newFavs);
             } else {
-                addFavorite(id, type, name);
+                const newFavs = [
+                    ...currentFavorites,
+                    { id, type, name, addedAt: new Date().toISOString(), ...metadata },
+                ];
+                saveFavoritesToStorage(newFavs);
             }
         },
-        [favorites, addFavorite, removeFavorite]
+        []
     );
 
     const isFavorite = useCallback(

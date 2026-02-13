@@ -9,6 +9,7 @@ interface FavoriteButtonProps {
     id: string;
     type: FavoriteType;
     name: string;
+    metadata?: any;
     size?: "sm" | "default" | "lg" | "icon";
     variant?: "ghost" | "outline";
     className?: string;
@@ -18,6 +19,7 @@ export default function FavoriteButton({
     id,
     type,
     name,
+    metadata,
     size = "icon",
     variant = "ghost",
     className = "",
@@ -32,11 +34,11 @@ export default function FavoriteButton({
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toggleFavorite(id, type, name);
+                toggleFavorite(id, type, name, metadata);
             }}
             className={`transition-all duration-300 ${active
-                    ? "text-red-500 hover:text-red-400"
-                    : "text-muted-foreground hover:text-red-400"
+                ? "text-red-500 hover:text-red-400"
+                : "text-muted-foreground hover:text-red-400"
                 } ${className}`}
             aria-label={active ? "Retirer des favoris" : "Ajouter aux favoris"}
         >

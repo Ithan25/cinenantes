@@ -60,6 +60,13 @@ export default function MovieCard({
                                 id={movie.id}
                                 type="movie"
                                 name={movie.title}
+                                metadata={{
+                                    posterUrl: movie.posterUrl,
+                                    rating: movie.rating,
+                                    genres: movie.genres,
+                                    duration: movie.duration,
+                                    releaseDate: movie.releaseDate
+                                }}
                                 className="bg-black/40 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground h-8 w-8"
                             />
                         </div>

@@ -11,9 +11,9 @@ import Link from "next/link";
 import { Movie, ShowtimeGroup } from "@/lib/types";
 import { useState, useEffect, useRef } from "react";
 
-function getToday(): string {
-    return new Date().toISOString().split("T")[0];
-}
+import { getTodayDate } from "@/lib/utils";
+
+// Removed local getToday function
 
 const IMAGE_EXTENSIONS = ["webp", "png", "jpg", "jpeg", "avif"];
 
@@ -70,7 +70,7 @@ export default function FavorisPage() {
         useFavorites();
 
     // Fetch today's showtimes to get poster URLs for favorite movies
-    const { groups } = useShowtimes({ date: getToday() });
+    const { groups } = useShowtimes({ date: getTodayDate() });
 
     const movieFavorites = getFavoritesByType("movie");
     const cinemaFavorites = getFavoritesByType("cinema");
@@ -156,17 +156,18 @@ export default function FavorisPage() {
                             </h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                                 {movieFavorites.map((fav) => {
-                                    const movieData = movieDataMap.get(fav.id);
+                                    // Try to get fresh showtime count, but don't rely on it for display
                                     const showtimeCount = movieShowtimeCount.get(fav.id) || 0;
+
                                     return (
                                         <div key={`movie-${fav.id}`} className="group relative">
                                             <Link href={`/films/${fav.id}`}>
                                                 <Card className="overflow-hidden border-border/50 bg-card/80 hover:border-primary/30 transition-all cursor-pointer">
                                                     {/* Poster */}
                                                     <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
-                                                        {movieData?.posterUrl ? (
+                                                        {fav.posterUrl ? (
                                                             <img
-                                                                src={movieData.posterUrl}
+                                                                src={fav.posterUrl}
                                                                 alt={fav.name}
                                                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                                 loading="lazy"
@@ -180,14 +181,14 @@ export default function FavorisPage() {
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
                                                         {/* Rating badge */}
-                                                        {movieData?.rating && (
+                                                        {fav.rating && (
                                                             <div className="absolute top-2 left-2 z-10">
                                                                 <Badge
                                                                     variant="secondary"
                                                                     className="bg-black/60 backdrop-blur-md text-primary border-primary/20 gap-1 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5"
                                                                 >
                                                                     <Star className="h-3 w-3 fill-primary text-primary" />
-                                                                    {movieData.rating.toFixed(1)}
+                                                                    {fav.rating.toFixed(1)}
                                                                 </Badge>
                                                             </div>
                                                         )}
@@ -202,9 +203,9 @@ export default function FavorisPage() {
                                                             <h3 className="text-sm font-bold text-white line-clamp-2 leading-tight">
                                                                 {fav.name}
                                                             </h3>
-                                                            {movieData?.genres && movieData.genres.length > 0 && (
+                                                            {fav.genres && fav.genres.length > 0 && (
                                                                 <p className="mt-0.5 text-[11px] text-white/60 line-clamp-1">
-                                                                    {movieData.genres.slice(0, 2).join(" · ")}
+                                                                    {fav.genres.slice(0, 2).join(" · ")}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -212,16 +213,21 @@ export default function FavorisPage() {
 
                                                     {/* Card footer */}
                                                     <CardContent className="p-3 space-y-2">
-                                                        {movieData?.duration && (
+                                                        {fav.duration && (
                                                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                                 <Clock className="h-3 w-3" />
-                                                                <span>{movieData.duration}</span>
+                                                                <span>{fav.duration}</span>
                                                             </div>
                                                         )}
-                                                        {showtimeCount > 0 && (
+                                                        {showtimeCount > 0 ? (
                                                             <div className="flex items-center gap-1.5 text-xs text-primary/80">
                                                                 <Film className="h-3 w-3" />
                                                                 <span>{showtimeCount} séance{showtimeCount > 1 ? "s" : ""} aujourd&apos;hui</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50 italic">
+                                                                <Clock className="h-3 w-3" />
+                                                                <span>Aucune séance ce jour</span>
                                                             </div>
                                                         )}
                                                     </CardContent>
@@ -262,10 +268,10 @@ export default function FavorisPage() {
                                 {cinemaFavorites.map((fav) => {
                                     const cinema = getCinemaById(fav.id);
                                     // Count today's showtimes for this cinema
-                                    const cinemaGroups = groups.filter(
+                                    const resultGroups = groups.filter(
                                         (g: ShowtimeGroup) => g.cinema.id === fav.id
                                     );
-                                    const totalShowtimes = cinemaGroups.reduce(
+                                    const totalShowtimes = resultGroups.reduce(
                                         (sum: number, g: ShowtimeGroup) => sum + g.showtimes.length,
                                         0
                                     );
@@ -293,11 +299,11 @@ export default function FavorisPage() {
                                                         <h3 className="font-bold text-base group-hover:text-primary transition-colors truncate">
                                                             {fav.name}
                                                         </h3>
-                                                        {cinema && (
+                                                        {(fav.address || cinema?.address) && (
                                                             <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
                                                                 <MapPin className="h-3 w-3 shrink-0" />
                                                                 <span className="truncate">
-                                                                    {cinema.address}, {cinema.city}
+                                                                    {fav.address || cinema?.address}, {fav.city || cinema?.city}
                                                                 </span>
                                                             </div>
                                                         )}
@@ -312,10 +318,10 @@ export default function FavorisPage() {
                                                 </div>
 
                                                 <div className="flex items-center gap-3 pt-1 border-t border-border/50">
-                                                    {cinemaGroups.length > 0 ? (
+                                                    {resultGroups.length > 0 ? (
                                                         <>
                                                             <span className="text-xs text-muted-foreground">
-                                                                <span className="font-semibold text-foreground">{cinemaGroups.length}</span> film{cinemaGroups.length > 1 ? "s" : ""}
+                                                                <span className="font-semibold text-foreground">{resultGroups.length}</span> film{resultGroups.length > 1 ? "s" : ""}
                                                             </span>
                                                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                                             <span className="text-xs text-muted-foreground">
