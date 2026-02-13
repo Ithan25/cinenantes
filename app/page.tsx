@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Film, Building2, ArrowRight, Sparkles, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,9 @@ import MovieCard from "@/components/MovieCard";
 import CinemaCard from "@/components/CinemaCard";
 import FilterBar from "@/components/FilterBar";
 import { useShowtimes } from "@/hooks/useShowtimes";
+import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 import { CINEMAS } from "@/lib/cinemas";
-import { ShowtimeGroup, Movie, Showtime } from "@/lib/types";
+import { Movie, Showtime } from "@/lib/types";
 
 function getToday(): string {
   return new Date().toISOString().split("T")[0];
@@ -25,63 +26,61 @@ interface AggregatedMovie {
 }
 
 export default function HomePage() {
-  const [selectedDate, setSelectedDate] = useState(getToday());
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCinema, setSelectedCinema] = useState<string | null>(null);
+  const {
+    selectedDate, setSelectedDate,
+    searchQuery, setSearchQuery,
+    selectedCinema, setSelectedCinema,
+    isInitialized,
+  } = usePersistedFilters("home");
 
   const { groups, isLoading } = useShowtimes({
     date: selectedDate,
     cinemaId: selectedCinema || undefined,
   });
 
-  // Aggregate all showtimes per unique movie (merge across cinemas)
-  const movieMap = new Map<string, AggregatedMovie>();
-  groups.forEach((g) => {
-    const existing = movieMap.get(g.movie.id);
-    if (existing) {
-      existing.allShowtimes.push(...g.showtimes);
-      existing.cinemaCount++;
-      // Keep the most complete movie data
-      if (!existing.movie.posterUrl && g.movie.posterUrl) {
-        existing.movie = g.movie;
-      }
-    } else {
-      movieMap.set(g.movie.id, {
-        movie: { ...g.movie },
-        allShowtimes: [...g.showtimes],
-        cinemaCount: 1,
-      });
-    }
-  });
+  // Prevent flash of default content by waiting for initialization
 
-  // Sort aggregated showtimes by time
-  const aggregatedMovies = Array.from(movieMap.values()).map((am) => ({
-    ...am,
-    allShowtimes: am.allShowtimes.sort((a, b) => a.time.localeCompare(b.time)),
-  }));
+
+  // Aggregate all showtimes per unique movie
+  const aggregatedMovies = useMemo(() => {
+    const movieMap = new Map<string, AggregatedMovie>();
+    groups.forEach((g) => {
+      const existing = movieMap.get(g.movie.id);
+      if (existing) {
+        existing.allShowtimes.push(...g.showtimes);
+        existing.cinemaCount++;
+        if (!existing.movie.posterUrl && g.movie.posterUrl) {
+          existing.movie = g.movie;
+        }
+      } else {
+        movieMap.set(g.movie.id, {
+          movie: { ...g.movie },
+          allShowtimes: [...g.showtimes],
+          cinemaCount: 1,
+        });
+      }
+    });
+    return Array.from(movieMap.values()).map((am) => ({
+      ...am,
+      allShowtimes: am.allShowtimes.sort((a, b) => a.time.localeCompare(b.time)),
+    }));
+  }, [groups]);
 
   // Filter by search
-  const filteredMovies = aggregatedMovies.filter((am) => {
-    if (!searchQuery) return true;
+  const filteredMovies = useMemo(() => {
+    if (!searchQuery) return aggregatedMovies;
     const q = searchQuery.toLowerCase();
-    return am.movie.title.toLowerCase().includes(q);
-  });
-
-  // Also filter groups for cinema search
-  const filteredGroups = groups.filter((g) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      g.movie.title.toLowerCase().includes(q) ||
-      g.cinema.name.toLowerCase().includes(q)
+    return aggregatedMovies.filter((am) =>
+      am.movie.title.toLowerCase().includes(q)
     );
-  });
+  }, [aggregatedMovies, searchQuery]);
+
+  if (!isInitialized) return null;
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-white/5 dark:border-white/5">
-        {/* Dynamic Background */}
         <div className="absolute inset-0 bg-background">
           <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-primary/5 via-primary/5 to-transparent opacity-40 mix-blend-screen pointer-events-none" />
           <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] mix-blend-screen opacity-20 animate-pulse" />
@@ -104,7 +103,6 @@ export default function HomePage() {
             Toutes les salles, tous les films, une seule app.
           </p>
 
-          {/* Quick stats */}
           <div className="grid grid-cols-3 gap-8 md:gap-16 border-t border-black/10 dark:border-white/10 pt-8 px-8">
             <div className="flex flex-col items-center gap-1">
               <span className="text-2xl font-bold text-foreground">{CINEMAS.length}</span>
@@ -124,7 +122,6 @@ export default function HomePage() {
 
       {/* Main Content */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-12">
-        {/* Filters - NOT sticky */}
         <div>
           <FilterBar
             searchQuery={searchQuery}
@@ -136,7 +133,6 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Films section */}
         <div className="space-y-6">
           <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
             <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -168,9 +164,7 @@ export default function HomePage() {
                 <div className="h-20 w-20 rounded-full bg-white/5 flex items-center justify-center mb-2">
                   <span className="text-5xl grayscale opacity-50">🎬</span>
                 </div>
-                <h3 className="font-bold text-xl">
-                  Aucune séance trouvée
-                </h3>
+                <h3 className="font-bold text-xl">Aucune séance trouvée</h3>
                 <p className="text-muted-foreground max-w-md">
                   {searchQuery
                     ? `Aucun résultat pour "${searchQuery}". Essayez un autre terme.`
@@ -205,10 +199,7 @@ export default function HomePage() {
               Nos cinémas partenaires
             </h2>
             <Link href="/cinemas">
-              <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
-              >
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5">
                 Voir la liste complète
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -217,18 +208,13 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {CINEMAS.slice(0, 6).map((cinema) => {
-              const cinemaGroups = groups.filter(
-                (g) => g.cinema.id === cinema.id
-              );
+              const cinemaGroups = groups.filter((g) => g.cinema.id === cinema.id);
               return (
                 <CinemaCard
                   key={cinema.id}
                   cinema={cinema}
                   movieCount={cinemaGroups.length}
-                  showtimeCount={cinemaGroups.reduce(
-                    (sum, g) => sum + g.showtimes.length,
-                    0
-                  )}
+                  showtimeCount={cinemaGroups.reduce((sum, g) => sum + g.showtimes.length, 0)}
                 />
               );
             })}

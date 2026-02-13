@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Cinema } from "@/lib/types";
 import { CINEMAS } from "@/lib/cinemas";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface FilterBarProps {
     searchQuery: string;
@@ -28,6 +28,29 @@ export default function FilterBar({
     cinemas = CINEMAS,
 }: FilterBarProps) {
     const [showFilters, setShowFilters] = useState(false);
+
+    // Local state for search input to avoid lag on each keystroke
+    const [localSearch, setLocalSearch] = useState(searchQuery);
+    const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+    // Sync local search when prop changes (e.g. back navigation restoring URL)
+    useEffect(() => {
+        setLocalSearch(searchQuery);
+    }, [searchQuery]);
+
+    const handleLocalSearchChange = (value: string) => {
+        setLocalSearch(value);
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            onSearchChange(value);
+        }, 300);
+    };
+
+    const handleClearSearch = () => {
+        setLocalSearch("");
+        clearTimeout(debounceRef.current);
+        onSearchChange("");
+    };
 
     // Generate date options (today + next 6 days)
     const dateOptions = Array.from({ length: 7 }, (_, i) => {
@@ -56,13 +79,13 @@ export default function FilterBar({
                     <Input
                         type="text"
                         placeholder="Rechercher un film, un cinéma..."
-                        value={searchQuery}
-                        onChange={(e) => onSearchChange(e.target.value)}
+                        value={localSearch}
+                        onChange={(e) => handleLocalSearchChange(e.target.value)}
                         className="pl-11 h-12 text-base bg-background/50 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-lg"
                     />
-                    {searchQuery && (
+                    {localSearch && (
                         <button
-                            onClick={() => onSearchChange("")}
+                            onClick={handleClearSearch}
                             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
                         >
                             <X className="h-4 w-4" />
@@ -88,8 +111,8 @@ export default function FilterBar({
                         size="default"
                         onClick={() => onDateChange(d.value)}
                         className={`whitespace-nowrap flex-shrink-0 rounded-full px-5 h-10 ${selectedDate === d.value
-                                ? "bg-primary text-primary-foreground font-semibold shadow-[0_0_15px_rgba(251,191,36,0.25)] hover:bg-primary/90"
-                                : "border-white/10 bg-white/5 hover:bg-white/10 hover:text-foreground hover:border-white/20"
+                            ? "bg-primary text-primary-foreground font-semibold shadow-[0_0_15px_rgba(251,191,36,0.25)] hover:bg-primary/90"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 hover:text-foreground hover:border-white/20"
                             }`}
                     >
                         {d.label}
@@ -119,8 +142,8 @@ export default function FilterBar({
                                 key={cinema.id}
                                 variant="outline"
                                 className={`cursor-pointer px-3 py-1.5 text-sm transition-all ${selectedCinema === cinema.id
-                                        ? "bg-primary/20 text-primary border-primary/40 shadow-[0_0_10px_rgba(251,191,36,0.15)]"
-                                        : "border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground hover:border-white/20"
+                                    ? "bg-primary/20 text-primary border-primary/40 shadow-[0_0_10px_rgba(251,191,36,0.15)]"
+                                    : "border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground hover:border-white/20"
                                     }`}
                                 onClick={() =>
                                     onCinemaChange(

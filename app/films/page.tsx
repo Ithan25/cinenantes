@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Film } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,21 +8,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import MovieCard from "@/components/MovieCard";
 import FilterBar from "@/components/FilterBar";
 import { useShowtimes } from "@/hooks/useShowtimes";
+import { usePersistedFilters } from "@/hooks/usePersistedFilters";
 import { ShowtimeGroup, Movie, Showtime } from "@/lib/types";
 
-function getToday(): string {
-    return new Date().toISOString().split("T")[0];
-}
-
 export default function FilmsPage() {
-    const [selectedDate, setSelectedDate] = useState(getToday());
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCinema, setSelectedCinema] = useState<string | null>(null);
+    const {
+        selectedDate, setSelectedDate,
+        searchQuery, setSearchQuery,
+        selectedCinema, setSelectedCinema,
+        isInitialized,
+    } = usePersistedFilters("films");
 
     const { groups, isLoading } = useShowtimes({
         date: selectedDate,
         cinemaId: selectedCinema || undefined,
     });
+
+
 
     // Aggregate movies across cinemas
     const movies = useMemo(() => {
@@ -51,14 +53,16 @@ export default function FilmsPage() {
     }, [groups]);
 
     // Filter
-    const filtered = movies.filter((m) => {
-        if (!searchQuery) return true;
+    const filtered = useMemo(() => {
+        if (!searchQuery) return movies;
         const q = searchQuery.toLowerCase();
-        return (
+        return movies.filter((m) =>
             m.movie.title.toLowerCase().includes(q) ||
             m.cinemaNames.some((n) => n.toLowerCase().includes(q))
         );
-    });
+    }, [movies, searchQuery]);
+
+    if (!isInitialized) return null;
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">

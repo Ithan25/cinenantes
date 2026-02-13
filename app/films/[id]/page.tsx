@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -22,27 +22,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import FavoriteButton from "@/components/FavoriteButton";
 import ShowtimesList from "@/components/ShowtimesList";
 import { useShowtimes } from "@/hooks/useShowtimes";
-import { ShowtimeGroup } from "@/lib/types";
+import { ShowtimeGroup, Movie } from "@/lib/types";
 
 function getToday(): string {
     return new Date().toISOString().split("T")[0];
 }
 
-export default function FilmDetailPage() {
-    const params = useParams();
-    const movieId = params.id as string;
-    const [selectedDate, setSelectedDate] = useState(getToday());
-
-    const { groups, isLoading } = useShowtimes({ date: selectedDate });
-
-    // Find movie in groups
-    const movieGroups = groups.filter(
-        (g: ShowtimeGroup) => g.movie.id === movieId
-    );
-    const movie = movieGroups.length > 0 ? movieGroups[0].movie : null;
-
-    // Date options (today + 6 days)
-    const dateOptions = Array.from({ length: 7 }, (_, i) => {
+// Generate date options (today + 6 days)
+function getDateOptions() {
+    return Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() + i);
         const value = d.toISOString().split("T")[0];
@@ -58,8 +46,78 @@ export default function FilmDetailPage() {
                     });
         return { value, label };
     });
+}
 
-    if (isLoading) {
+export default function FilmDetailPage() {
+    const params = useParams();
+    const movieId = params.id as string;
+    const router = useRouter();
+    const [selectedDate, setSelectedDate] = useState(getToday());
+
+    // Fetch showtimes for the selected date
+    const { groups, isLoading } = useShowtimes({ date: selectedDate });
+
+    // Find movie in groups for the selected date
+    const movieGroups = groups.filter(
+        (g: ShowtimeGroup) => g.movie.id === movieId
+    );
+    const movieFromSelectedDate = movieGroups.length > 0 ? movieGroups[0].movie : null;
+
+    // Track the best known movie data across date changes
+    const [movieData, setMovieData] = useState<Movie | null>(null);
+    const [searchingDates, setSearchingDates] = useState(false);
+    const searchedRef = useRef(false);
+
+    // Update movieData whenever we find the movie on the selected date
+    useEffect(() => {
+        if (movieFromSelectedDate) {
+            setMovieData(movieFromSelectedDate);
+            setSearchingDates(false);
+        }
+    }, [movieFromSelectedDate]);
+
+    // If movie not found after loading today, search other dates
+    useEffect(() => {
+        if (isLoading || movieData || searchedRef.current) return;
+        if (groups.length > 0 && !movieFromSelectedDate) {
+            // Movie wasn't found on selected date, search other dates
+            searchedRef.current = true;
+            setSearchingDates(true);
+
+            const dateOptions = getDateOptions();
+            const otherDates = dateOptions
+                .map((d) => d.value)
+                .filter((d) => d !== selectedDate);
+
+            // Search remaining dates sequentially until we find the movie
+            (async () => {
+                for (const date of otherDates) {
+                    try {
+                        const params = new URLSearchParams({ date });
+                        const res = await fetch(`/api/showtimes?${params.toString()}`);
+                        if (!res.ok) continue;
+                        const data = await res.json();
+                        const found = (data.groups || []).find(
+                            (g: ShowtimeGroup) => g.movie.id === movieId
+                        );
+                        if (found) {
+                            setMovieData(found.movie);
+                            setSearchingDates(false);
+                            return;
+                        }
+                    } catch {
+                        // continue
+                    }
+                }
+                setSearchingDates(false);
+            })();
+        }
+    }, [isLoading, groups, movieFromSelectedDate, movieData, movieId, selectedDate]);
+
+    const dateOptions = getDateOptions();
+    const movie = movieData;
+
+    if (isLoading && !movie) {
         return (
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
                 <Skeleton className="h-8 w-40 shimmer" />
@@ -75,7 +133,7 @@ export default function FilmDetailPage() {
         );
     }
 
-    if (!movie) {
+    if (!movie && !searchingDates) {
         return (
             <div className="mx-auto max-w-7xl px-4 py-16 text-center">
                 <span className="text-5xl">🎬</span>
@@ -83,23 +141,40 @@ export default function FilmDetailPage() {
                 <p className="text-muted-foreground mt-2">
                     Ce film n&apos;est actuellement pas à l&apos;affiche.
                 </p>
-                <Link href="/films" className="mt-4 inline-block">
-                    <Button variant="outline" className="gap-2">
-                        <ArrowLeft className="h-4 w-4" />
-                        Retour aux films
-                    </Button>
-                </Link>
+                <Button onClick={() => router.back()} variant="outline" className="mt-4 gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    Retour
+                </Button>
             </div>
         );
     }
+
+    if (!movie && searchingDates) {
+        return (
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+                <Skeleton className="h-8 w-40 shimmer" />
+                <div className="flex flex-col md:flex-row gap-8">
+                    <Skeleton className="w-64 h-96 rounded-xl shimmer shrink-0" />
+                    <div className="flex-1 space-y-4">
+                        <Skeleton className="h-10 w-3/4 shimmer" />
+                        <Skeleton className="h-5 w-1/2 shimmer" />
+                        <Skeleton className="h-20 w-full shimmer" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // At this point, movie is guaranteed to be non-null
+    const m = movie!;
 
     return (
         <div className="min-h-screen bg-background">
             {/* Full Width Backdrop */}
             <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
-                {movie.backdropUrl || movie.posterUrl ? (
+                {m.backdropUrl || m.posterUrl ? (
                     <img
-                        src={movie.backdropUrl || movie.posterUrl}
+                        src={m.backdropUrl || m.posterUrl}
                         alt=""
                         className="w-full h-full object-cover opacity-30 select-none"
                     />
@@ -110,16 +185,15 @@ export default function FilmDetailPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent " />
 
                 <div className="absolute top-6 left-4 md:left-8 z-20">
-                    <Link href="/films">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            className="bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/10 gap-2 rounded-full px-4"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Retour
-                        </Button>
-                    </Link>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => router.back()}
+                        className="bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/10 gap-2 rounded-full px-4"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Retour
+                    </Button>
                 </div>
             </div>
 
@@ -130,10 +204,10 @@ export default function FilmDetailPage() {
                     {/* Left Column: Poster & Quick Actions */}
                     <div className="w-full md:w-72 lg:w-80 flex-shrink-0 flex flex-col gap-4">
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl neon-glow-strong ring-1 ring-white/10 group">
-                            {movie.posterUrl ? (
+                            {m.posterUrl ? (
                                 <img
-                                    src={movie.posterUrl}
-                                    alt={movie.title}
+                                    src={m.posterUrl}
+                                    alt={m.title}
                                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                             ) : (
@@ -145,16 +219,16 @@ export default function FilmDetailPage() {
 
                         <div className="flex items-center gap-2">
                             <FavoriteButton
-                                id={movie.id}
+                                id={m.id}
                                 type="movie"
-                                name={movie.title}
+                                name={m.title}
                                 size="default"
                                 className="flex-1 justify-center h-11 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.12] backdrop-blur-sm"
                             />
-                            {movie.rating && (
+                            {m.rating && (
                                 <div className="flex h-11 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/[0.08] px-4 font-semibold text-amber-400">
                                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                                    <span className="text-sm">{movie.rating.toFixed(1)}</span>
+                                    <span className="text-sm">{m.rating.toFixed(1)}</span>
                                 </div>
                             )}
                         </div>
@@ -165,27 +239,27 @@ export default function FilmDetailPage() {
                         {/* Header Info */}
                         <div className="space-y-4">
                             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground drop-shadow-xl loading-tight">
-                                {movie.title}
+                                {m.title}
                             </h1>
 
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm md:text-base text-muted-foreground font-medium">
-                                {movie.duration && (
+                                {m.duration && (
                                     <span className="flex items-center gap-2 text-foreground/90">
                                         <Clock className="h-4 w-4 text-primary" />
-                                        {movie.duration}
+                                        {m.duration}
                                     </span>
                                 )}
-                                {movie.genres && movie.genres.length > 0 && (
+                                {m.genres && m.genres.length > 0 && (
                                     <>
                                         <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
-                                        <span className="text-foreground/80">{movie.genres.join(" · ")}</span>
+                                        <span className="text-foreground/80">{m.genres.join(" · ")}</span>
                                     </>
                                 )}
-                                {movie.releaseDate && (
+                                {m.releaseDate && (
                                     <>
                                         <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
                                         <span className="text-foreground/80">
-                                            {new Date(movie.releaseDate).getFullYear()}
+                                            {new Date(m.releaseDate).getFullYear()}
                                         </span>
                                     </>
                                 )}
@@ -199,30 +273,30 @@ export default function FilmDetailPage() {
                                     Synopsis
                                 </h3>
                                 <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
-                                    {movie.synopsis || "Aucun résumé disponible."}
+                                    {m.synopsis || "Aucun résumé disponible."}
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                {movie.director && (
+                                {m.director && (
                                     <div className="space-y-2">
                                         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                             <Clapperboard className="h-4 w-4 text-primary" />
                                             Réalisation
                                         </h3>
                                         <p className="font-medium text-lg text-foreground pl-6 border-l-2 border-primary/50">
-                                            {movie.director}
+                                            {m.director}
                                         </p>
                                     </div>
                                 )}
-                                {movie.cast && movie.cast.length > 0 && (
+                                {m.cast && m.cast.length > 0 && (
                                     <div className="space-y-2">
                                         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                             <Users className="h-4 w-4 text-primary" />
                                             Casting
                                         </h3>
                                         <div className="flex flex-wrap gap-2 pl-6 border-l-2 border-black/5 dark:border-white/10">
-                                            {movie.cast.map(actor => (
+                                            {m.cast.map(actor => (
                                                 <span key={actor} className="inline-block bg-black/5 dark:bg-white/5 px-3 py-1 rounded-md text-sm border border-black/5 dark:border-white/5 text-foreground/90">
                                                     {actor}
                                                 </span>
@@ -241,9 +315,11 @@ export default function FilmDetailPage() {
                                         <Building2 className="h-6 w-6" />
                                     </span>
                                     Séances
-                                    <Badge variant="secondary" className="ml-2">
-                                        {movieGroups.length} cinéma{movieGroups.length > 1 ? "s" : ""}
-                                    </Badge>
+                                    {movieGroups.length > 0 && (
+                                        <Badge variant="secondary" className="ml-2">
+                                            {movieGroups.length} cinéma{movieGroups.length > 1 ? "s" : ""}
+                                        </Badge>
+                                    )}
                                 </h2>
                             </div>
 
@@ -265,7 +341,13 @@ export default function FilmDetailPage() {
                                 ))}
                             </div>
 
-                            {movieGroups.length === 0 ? (
+                            {isLoading ? (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    {[1, 2].map((i) => (
+                                        <Skeleton key={i} className="h-32 w-full rounded-xl shimmer" />
+                                    ))}
+                                </div>
+                            ) : movieGroups.length === 0 ? (
                                 <Card className="border-border/50 bg-card/30 p-8 text-center backdrop-blur-sm">
                                     <span className="text-4xl block mb-4">🗓️</span>
                                     <h3 className="text-lg font-semibold">Aucune séance ce jour</h3>
