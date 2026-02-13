@@ -116,6 +116,58 @@
   --sidebar-ring: oklch(0.75 0.18 65);
 }
 
+/* Light Theme */
+.light {
+  --background: oklch(0.98 0.005 90);
+  --foreground: oklch(0.15 0.02 270);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 270);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 270);
+
+  /* Primary: Same Amber/Orange for brand consistency */
+  --primary: oklch(0.75 0.18 65);
+  --primary-foreground: oklch(1 0 0);
+
+  /* Secondary: Warm light accent */
+  --secondary: oklch(0.95 0.02 60);
+  --secondary-foreground: oklch(0.25 0.04 60);
+
+  --muted: oklch(0.94 0.01 270);
+  --muted-foreground: oklch(0.5 0.03 270);
+
+  --accent: oklch(0.94 0.03 55);
+  --accent-foreground: oklch(0.25 0.05 55);
+
+  --destructive: oklch(0.55 0.22 25);
+
+  --border: oklch(0.88 0.01 270);
+  --input: oklch(0.9 0.01 270);
+  --ring: oklch(0.75 0.18 65);
+
+  /* Neon glow colors (toned down for light) */
+  --neon: oklch(0.75 0.18 65);
+  --neon-muted: oklch(0.65 0.15 60);
+
+  /* Charts */
+  --chart-1: oklch(0.65 0.18 65);
+  --chart-2: oklch(0.6 0.15 40);
+  --chart-3: oklch(0.55 0.12 200);
+  --chart-4: oklch(0.62 0.16 140);
+  --chart-5: oklch(0.58 0.14 320);
+
+  --sidebar: oklch(0.97 0.005 90);
+  --sidebar-foreground: oklch(0.15 0.02 270);
+  --sidebar-primary: oklch(0.75 0.18 65);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.95 0.02 60);
+  --sidebar-accent-foreground: oklch(0.25 0.04 60);
+  --sidebar-border: oklch(0.88 0.01 270);
+  --sidebar-ring: oklch(0.75 0.18 65);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
