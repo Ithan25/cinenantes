@@ -1,0 +1,195 @@
+Fetching https://www.allocine.fr/seance/salle_gen_csalle=P0196.html...
+
+--- LD-JSON ---
+
+{
+    "@context":"http://schema.org",
+    "@type":"MovieTheater",
+    "name":"Pathé Nantes Centre ville",
+    "screenCount":"12",
+    "image":"https://fr.web.img3.acsta.net/r_234_234/img/9c/c4/9cc4ce194159f44e6c84c01fee946050.JPG",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "12, place du Commerce",
+        "postalCode": "44000",
+        "addressLocality": "Nantes"
+    }
+}
+
+
+
+{
+    "@context":"http://schema.org",
+    "@type":"ItemList",
+    "itemListElement":[
+
+
+{
+    "@type":"ListItem",
+    "position":1,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000007317.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":2,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000006174.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":3,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000024120.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":4,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000001960.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":5,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000007235.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":6,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=323164.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":7,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=324466.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":8,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=328179.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":9,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=317669.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":10,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000017997.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":11,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000014092.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":12,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=315003.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":13,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=323925.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":14,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=281028.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":15,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000005026.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":16,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000023006.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":17,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=280941.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":18,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=187247.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":19,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=20287.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":20,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=1000021522.html"
+}
+,
+
+
+{
+    "@type":"ListItem",
+    "position":21,
+    "url":"https://www.allocine.fr/film/fichefilm_gen_cfilm=277428.html"
+}
+    ]
+}
+
+
