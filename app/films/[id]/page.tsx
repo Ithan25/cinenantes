@@ -122,18 +122,18 @@ export default function FilmDetailPage() {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             <FavoriteButton
                                 id={movie.id}
                                 type="movie"
                                 name={movie.title}
                                 size="default"
-                                className="w-full justify-center bg-card/50 backdrop-blur border border-white/10 hover:bg-white/5"
+                                className="flex-1 justify-center h-11 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.12] backdrop-blur-sm"
                             />
                             {movie.rating && (
-                                <div className="flex h-10 items-center justify-center rounded-md border border-primary/30 bg-primary/10 px-4 font-bold text-primary shadow-sm min-w-[4rem]">
-                                    <Star className="h-4 w-4 fill-primary mr-1.5" />
-                                    {movie.rating.toFixed(1)}
+                                <div className="flex h-11 items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/[0.08] px-4 font-semibold text-amber-400">
+                                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                                    <span className="text-sm">{movie.rating.toFixed(1)}</span>
                                 </div>
                             )}
                         </div>

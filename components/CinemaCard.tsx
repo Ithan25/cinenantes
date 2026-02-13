@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,31 +32,41 @@ export default function CinemaCard({
     showtimeCount,
     movieCount,
 }: CinemaCardProps) {
-    // Check for cinema image: /cinemas/{cinema.id}.png
-    const cinemaImageSrc = `/cinemas/${cinema.id}.png`;
+    // Try multiple image formats in sequence
+    const IMAGE_EXTENSIONS = ["webp", "png", "jpg", "jpeg", "avif"];
+    const [imgExtIndex, setImgExtIndex] = useState(0);
+    const [imgFailed, setImgFailed] = useState(false);
+
+    const cinemaImageSrc = !imgFailed
+        ? `/cinemas/${cinema.id}.${IMAGE_EXTENSIONS[imgExtIndex]}`
+        : null;
+
+    const handleImageError = () => {
+        if (imgExtIndex < IMAGE_EXTENSIONS.length - 1) {
+            setImgExtIndex((prev) => prev + 1);
+        } else {
+            setImgFailed(true);
+        }
+    };
 
     return (
         <Card className="group card-hover border-border/50 bg-card/80 hover:border-primary/30 cursor-pointer overflow-hidden">
-            {/* Cinema image (if exists) or accent bar */}
+            {/* Cinema image (tries multiple formats) or accent bar */}
             <div className="relative">
-                <img
-                    src={cinemaImageSrc}
-                    alt={cinema.name}
-                    className="w-full h-32 object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
-                    onError={(e) => {
-                        // If image doesn't exist, hide it and show accent bar
-                        const target = e.currentTarget;
-                        target.style.display = "none";
-                        const fallback = target.nextElementSibling as HTMLElement;
-                        if (fallback) fallback.style.display = "block";
-                    }}
-                />
-                <div
-                    className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent"
-                    style={{ display: "none" }}
-                />
+                {cinemaImageSrc ? (
+                    <img
+                        src={cinemaImageSrc}
+                        alt={cinema.name}
+                        className="w-full h-32 object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+                        onError={handleImageError}
+                    />
+                ) : (
+                    <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary/30 to-transparent" />
+                )}
                 {/* Gradient overlay on image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+                {cinemaImageSrc && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+                )}
             </div>
 
             <CardContent className="p-5 space-y-3">
