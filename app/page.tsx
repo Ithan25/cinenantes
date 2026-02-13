@@ -23,7 +23,9 @@ interface AggregatedMovie {
   cinemaCount: number;
 }
 
-export default function HomePage() {
+import { Suspense } from "react";
+
+function HomeContent() {
   const {
     selectedDate, setSelectedDate,
     searchQuery, setSearchQuery,
@@ -35,9 +37,6 @@ export default function HomePage() {
     date: selectedDate,
     cinemaId: selectedCinema || undefined,
   });
-
-  // Prevent flash of default content by waiting for initialization
-
 
   // Aggregate all showtimes per unique movie
   const aggregatedMovies = useMemo(() => {
@@ -220,5 +219,41 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function HomeLoading() {
+  return (
+    <div className="min-h-screen">
+      <section className="relative overflow-hidden border-b border-white/5 dark:border-white/5">
+        <div className="relative mx-auto max-w-7xl px-4 py-20 flex flex-col items-center">
+          <Skeleton className="h-8 w-64 mb-6 rounded-full shimmer" />
+          <Skeleton className="h-20 w-3/4 mb-6 shimmer" />
+          <Skeleton className="h-16 w-1/2 mb-10 shimmer" />
+        </div>
+      </section>
+      <section className="mx-auto max-w-7xl px-4 py-10 space-y-12">
+        <Skeleton className="h-14 w-full shimmer" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-[2/3] w-full rounded-xl shimmer" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4 shimmer" />
+                <Skeleton className="h-3 w-1/2 shimmer" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<HomeLoading />}>
+      <HomeContent />
+    </Suspense>
   );
 }
