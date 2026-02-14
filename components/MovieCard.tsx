@@ -92,10 +92,10 @@ export default function MovieCard({
                             <Clock className="h-3 w-3" />
                             <span>{movie.duration}</span>
                             {cinemaName && (
-                                <>
+                                <span className="hidden sm:inline">
                                     <span className="mx-1">·</span>
                                     <span className="text-primary/80 truncate">{cinemaName}</span>
-                                </>
+                                </span>
                             )}
                         </div>
                     )}
@@ -103,7 +103,7 @@ export default function MovieCard({
                     {/* Showtimes */}
                     {showShowtimes && showtimes && showtimes.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                            {showtimes.slice(0, 5).map((st) => (
+                            {showtimes.slice(0, 3).map((st) => (
                                 <Badge
                                     key={st.id}
                                     variant="outline"
@@ -115,12 +115,12 @@ export default function MovieCard({
                                     </span>
                                 </Badge>
                             ))}
-                            {showtimes.length > 5 && (
+                            {showtimes.length > 3 && (
                                 <Badge
                                     variant="outline"
                                     className="text-xs px-2 py-0.5 border-muted-foreground/30 text-muted-foreground"
                                 >
-                                    +{showtimes.length - 5}
+                                    +{showtimes.length - 3}
                                 </Badge>
                             )}
                         </div>
