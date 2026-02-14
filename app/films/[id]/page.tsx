@@ -174,12 +174,12 @@ export default function FilmDetailPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Full Width Backdrop */}
-            <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
+            <div className="relative h-[35vh] md:h-[50vh] w-full overflow-hidden">
                 {m.backdropUrl || m.posterUrl ? (
                     <img
                         src={m.backdropUrl || m.posterUrl}
                         alt=""
-                        className="w-full h-full object-cover opacity-30 select-none"
+                        className="w-full h-full object-cover opacity-30 select-none animate-in fade-in duration-1000"
                     />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 via-background to-background opacity-50" />
@@ -201,11 +201,11 @@ export default function FilmDetailPage() {
             </div>
 
             {/* Content Container - Overlapping Backdrop */}
-            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-32 md:-mt-48 pb-20 z-10">
-                <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+            <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-24 md:-mt-48 pb-20 z-10">
+                <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12 items-center md:items-start">
 
                     {/* Left Column: Poster & Quick Actions */}
-                    <div className="w-full md:w-72 lg:w-80 flex-shrink-0 flex flex-col gap-4">
+                    <div className="w-48 md:w-72 lg:w-80 flex-shrink-0 flex flex-col gap-4">
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl neon-glow-strong ring-1 ring-white/10 group">
                             {m.posterUrl ? (
                                 <img
@@ -245,14 +245,14 @@ export default function FilmDetailPage() {
                     </div>
 
                     {/* Right Column: Title, Details, Showtimes */}
-                    <div className="flex-1 min-w-0 pt-4 md:pt-12 space-y-8">
+                    <div className="flex-1 min-w-0 pt-2 md:pt-12 space-y-8 w-full">
                         {/* Header Info */}
-                        <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground drop-shadow-xl loading-tight">
+                        <div className="space-y-4 text-center md:text-left">
+                            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground drop-shadow-xl leading-tight">
                                 {m.title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm md:text-base text-muted-foreground font-medium">
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-3 text-sm md:text-base text-muted-foreground font-medium">
                                 {m.duration && (
                                     <span className="flex items-center gap-2 text-foreground/90">
                                         <Clock className="h-4 w-4 text-primary" />
@@ -261,13 +261,13 @@ export default function FilmDetailPage() {
                                 )}
                                 {m.genres && m.genres.length > 0 && (
                                     <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                                        <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-foreground/20" />
                                         <span className="text-foreground/80">{m.genres.join(" · ")}</span>
                                     </>
                                 )}
                                 {m.releaseDate && (
                                     <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                                        <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-foreground/20" />
                                         <span className="text-foreground/80">
                                             {new Date(m.releaseDate).getFullYear()}
                                         </span>
